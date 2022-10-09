@@ -1,0 +1,26 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panozhan/snake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/panozhan/snake/issues"
+  },
+  "homepage": "https://github.com/panozhan/snake#readme",
+  "devDependencies": {
+    "jest": "^29.1.2",
+    "nodemon": "^2.0.20",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
