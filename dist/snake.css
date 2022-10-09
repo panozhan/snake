@@ -1,0 +1,34 @@
+.board-element {
+    width: 40px;
+    height: 40px;
+    float:left;
+}
+
+.snake-edge {
+    
+    
+}
+
+.snake-mid {
+
+}
+
+.food {
+
+}
+
+.light-tile {
+
+    background-color: cornflowerblue;
+
+}
+
+.dark-tile {
+
+    background-color: darkblue;
+
+}
+
+.row {
+    height:40px;
+}
