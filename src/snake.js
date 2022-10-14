@@ -1,30 +1,38 @@
 class SnakePart {
-    constructor (row, column , direction) {
+    constructor (row, column, direction, next = null) {
         this.row = row;
         this.column = column;
-    }
-
-    moveUp() {
-        this.row -= 1;
-    }
-
-    moveDown() {
-        this.row += 1;
-    }
-
-    moveRight() {
-        this.column += 1;
-    }
-
-    moveLeft() {
-        this.column -= 1;
-    }
-}
-
-class Joint {
-    constructor (index, direction) {
-        this.index = index;
         this.direction = direction;
+        this.pivot = null;
+        this.pivotNext = null;
+        this.next = next;
+    }
+
+    move() {
+        if (this.pivot !== null) {
+            this.direction = this.pivot;
+            if (this.next !== null) {
+                this.next.pivotNext = this.pivot;
+            }
+        }
+        if (this.pivotNext !== null) {
+            this.pivot = this.pivotNext;
+            this.pivotNext = null;
+        }
+        switch (this.direction) {
+            case Snake.DIRECTION.DOWN:
+                this.row += 1;
+                break;
+            case Snake.DIRECTION.UP:
+                this.row -= 1;
+                break;
+            case Snake.DIRECTION.LEFT:
+                this.column -= 1;
+                break;
+            case Snake.DIRECTION.RIGHT:
+                this.column += 1;
+                break;
+        }
     }
 }
 
@@ -51,138 +59,114 @@ class Snake {
         LEFT:3
     }
     constructor(boardDimension) {
-        this.parts_ = [
-            new SnakePart(Math.floor(boardDimension / 2), 1),
-            new SnakePart(Math.floor(boardDimension / 2), 2)
-        ];
+        this.tail_ = new SnakePart(Math.floor(boardDimension / 2), 1, Snake.DIRECTION.RIGHT);
+        this.head_ = new SnakePart(Math.floor(boardDimension / 2), 2, Snake.DIRECTION.RIGHT, this.tail_);
         this.boardDimension_ = boardDimension;
-        this.joints_ = [new Joint(1, Snake.DIRECTION.RIGHT)];
         this.justChangedDirection = false;
     }
 
     collidesWithSnake(row, column) {
-        return this.parts_.some(e => e.row === row && e.column === column);
-    }
-
-    getHeadPosition() {
-        const head = this.parts_[this.parts_.length - 1];
-        return [head.row, head.column];
+        let node = this.head_;
+        while (node !== null) {
+            if (node.row === row && node.column === column) {
+                return true;
+            }
+            node = node.next;
+        }
+        return false;
     }
 
     isGameOver() {
-        const snakeHead = this.parts_[this.parts_.length - 1];
-        if (snakeHead.row === this.boardDimension_ || snakeHead.row === -1 || snakeHead.column === this.boardDimension_ || snakeHead.column === -1) {
+        if (this.head_.row === this.boardDimension_ || this.head_.row === -1 || 
+            this.head_.column === this.boardDimension_ || this.head_.column === -1) {
             return true;
-        } 
-        for (let i = 0; i < this.parts_.length - 1; ++i) {
-            if (snakeHead.row === this.parts_[i].row && snakeHead.column === this.parts_[i].column) {
+        }
+        let node = this.head_.next;
+        while (node !== null) {
+            if (this.head_.row === node.row && this.head_.column === node.column) {
                 return true;
             }
+            node = node.next;
         }
         return false;
     }
 
     getRenderingInfo() {
-        const lastJoint = this.joints_[0]; 
-        const firstJoint = this.joints_.length === 1 ? lastJoint : this.joints_[this.joints_.length - 1];
-        return this.parts_.map((part, i) => {
-            let renderingType = RenderingInfo.Type.CORNER_NONE;
-            if (i === this.parts_.length - 1) {
-                switch (lastJoint.direction) {
+        const result = [];
+        switch (this.head_.direction) {
+            case Snake.DIRECTION.UP:
+                result.push(new RenderingInfo(this.head_.row, this.head_.column, RenderingInfo.Type.CORNER_TOP));
+                break;
+            case Snake.DIRECTION.RIGHT:
+                result.push(new RenderingInfo(this.head_.row, this.head_.column, RenderingInfo.Type.CORNER_RIGHT));
+                break;
+            case Snake.DIRECTION.DOWN:
+                result.push(new RenderingInfo(this.head_.row, this.head_.column, RenderingInfo.Type.CORNER_DOWN));
+                break;
+            case Snake.DIRECTION.LEFT:
+                result.push(new RenderingInfo(this.head_.row, this.head_.column, RenderingInfo.Type.CORNER_LEFT));
+                break; 
+        }
+        let node = this.head_.next;
+        while (node !== null) {
+            if (node.next !== null) {
+                result.push(new RenderingInfo(node.row, node.column, RenderingInfo.Type.CORNER_NONE));
+                node = node.next;
+            } else {
+                let directionOfNextTick = node.direction;
+                if (node.pivot !== null) {
+                    directionOfNextTick = node.pivot;
+                }
+                switch (directionOfNextTick) {
                     case Snake.DIRECTION.UP:
-                        renderingType = RenderingInfo.Type.CORNER_TOP;
+                        result.push(new RenderingInfo(node.row, node.column, RenderingInfo.Type.CORNER_DOWN));
                         break;
                     case Snake.DIRECTION.RIGHT:
-                        renderingType = RenderingInfo.Type.CORNER_RIGHT;
+                        result.push(new RenderingInfo(node.row, node.column, RenderingInfo.Type.CORNER_LEFT));
                         break;
                     case Snake.DIRECTION.DOWN:
-                        renderingType = RenderingInfo.Type.CORNER_DOWN;
+                        result.push(new RenderingInfo(node.row, node.column, RenderingInfo.Type.CORNER_TOP));
                         break;
                     case Snake.DIRECTION.LEFT:
-                        renderingType = RenderingInfo.Type.CORNER_LEFT;
+                        result.push(new RenderingInfo(node.row, node.column, RenderingInfo.Type.CORNER_RIGHT));
                         break; 
                 }
-            } else if (i === 0) {
-                switch (firstJoint.direction) {
-                    case Snake.DIRECTION.UP:
-                        renderingType = RenderingInfo.Type.CORNER_DOWN;
-                        break;
-                    case Snake.DIRECTION.RIGHT:
-                        renderingType = RenderingInfo.Type.CORNER_LEFT;
-                        break;
-                    case Snake.DIRECTION.DOWN:
-                        renderingType = RenderingInfo.Type.CORNER_TOP;
-                        break;
-                    case Snake.DIRECTION.LEFT:
-                        renderingType = RenderingInfo.Type.CORNER_RIGHT;
-                        break; 
-                }
+                return result;
             }
-            return new RenderingInfo(part.row, part.column, renderingType);
-        });
+        }
+        return result;
     }
 
     addOneLength() {
-        const lastJoint = this.joints_[0];
-        const lastPart = this.parts_[0];
-        let newPartRow = lastPart.row;
-        let newPartColumn = lastPart.column;
-        switch (lastJoint.direction) {
+        let newTailRow = this.tail_.row;
+        let newTailColumn = this.tail_.column;
+        switch (this.tail_.direction) {
             case Snake.DIRECTION.UP:
-                newPartRow += 1;
+                newTailRow += 1;
                 break;
             case Snake.DIRECTION.RIGHT:
-                newPartColumn -= 1;
+                newTailColumn -= 1;
                 break;
             case Snake.DIRECTION.DOWN:
-                newPartRow -= 1; 
+                newTailRow -= 1; 
                 break;
             case Snake.DIRECTION.LEFT:
-                newPartColumn += 1;
+                newTailColumn += 1;
                 break; 
         }
-        this.parts_.unshift(new SnakePart(newPartRow, newPartColumn, lastJoint.direction));
-        this.joints_.forEach(e => {
-            e.index += 1;
-        });
-        console.log('adding one length', this.parts_, this.joints_);
+        this.tail_.next = new SnakePart(newTailRow, newTailColumn, this.tail_.direction);
+        this.tail_ = this.tail_.next;
+    }
+
+    getHeadPosition() {
+        return [this.head_.row, this.head_.column];
     }
 
     moveForwardOne() {
-        let jointIndex = this.joints_.length - 1;
-        let nextJointIndex = this.joints_.length - 2;
-        for (let i = this.parts_.length - 1; i >= 0; --i) {
-            let joint = this.joints_[jointIndex];
-            
-            if (nextJointIndex >= 0 && i === this.joints_[nextJointIndex].index) {
-                joint = this.joints_[nextJointIndex];
-                jointIndex = nextJointIndex;
-                nextJointIndex--;
-            } 
-            console.log('joints', this.joints_, joint);
-
-            for (let i = 0; i < this.joints_.length - 1; ++i) {
-                this.joints_[i].index += 1;
-            }
-            if (this.joints_[0].index === this.parts_.length) {
-                this.joints_.shift();
-            }
-
-            const part = this.parts_[i];
-            switch (joint.direction) {
-                case Snake.DIRECTION.UP:
-                    part.moveUp();
-                    break;
-                case Snake.DIRECTION.RIGHT:
-                    part.moveRight();
-                    break;
-                case Snake.DIRECTION.DOWN:
-                    part.moveDown();    
-                    break;
-                case Snake.DIRECTION.LEFT:
-                    part.moveLeft();
-                    break; 
-            }
+        let node = this.head_;
+        while (node !== null) {
+            node.move();
+            node = node.next;
         }
     }
 
@@ -194,14 +178,20 @@ class Snake {
         if (this.justChangedDirection) {
             return;
         }
-        const newHeadJoint = this.joints_.pop();
-        if (newHeadJoint.direction !== direction) {
-            this.joints_.push(new Joint(this.parts_.length - 2, newHeadJoint.direction));
-            this.justChangedDirection = true;
+        if (this.head_.direction === Snake.DIRECTION.LEFT && direction === Snake.DIRECTION.RIGHT) {
+            return;
         }
-        newHeadJoint.direction = direction;
-        this.joints_.push(newHeadJoint);
-
+        if (this.head_.direction === Snake.DIRECTION.RIGHT && direction === Snake.DIRECTION.LEFT) {
+            return;
+        }
+        if (this.head_.direction === Snake.DIRECTION.UP && direction === Snake.DIRECTION.DOWN) {
+            return;
+        }
+        if (this.head_.direction === Snake.DIRECTION.DOWN && direction === Snake.DIRECTION.UP) {
+            return;
+        }
+        this.head_.pivot = direction;
+        this.justChangedDirection = true;
     }
 };
 
