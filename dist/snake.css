@@ -2,19 +2,39 @@
     width: 40px;
     height: 40px;
     float:left;
+    position: relative;
 }
 
-.snake-edge {
-    
-    
+.snake {
+    width: 40px;
+    height: 40px;
+    background-color: lightgreen;
+    position: absolute;
 }
 
-.snake-mid {
-
+.round-corner-top {
+    border-radius: 20px 20px 0 0;
 }
+
+.round-corner-down {
+    border-radius: 0 0 20px 20px;
+}
+
+.round-corner-right {
+    border-radius: 0 20px 20px 0;
+}
+
+.round-corner-left {
+    border-radius: 20px 0 0 20px;
+}
+
 
 .food {
-
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: red;
+    border-radius: 20px;
 }
 
 .light-tile {

@@ -1,3 +1,5 @@
+const {RenderingInfo, Snake} = require("./snake");
+
 class Game {
     static DIRECTION =  {
         UP: 0,
@@ -6,11 +8,9 @@ class Game {
         LEFT: 3
     }
 
-    static BOARD_ELEMENTS = {
-        EMPTY: 0,
-        SNAKE_MID: 1,
-        SNAKE_EDGE: 2,
-        FOOD: 3
+    static TILE_COLOR = {
+        light: 0,
+        dark:1
     }
 
     constructor(dimension, speed) {
@@ -19,39 +19,81 @@ class Game {
         }
         this.dimension_ = dimension;
         this.speed_ = speed;
-        this.initializeBoard();
+        this.snake_ = new Snake(dimension);
     }
 
-    initializeBoard() {
-        const result = Array(this.dimension_);
-        for(let i = 0; i < this.dimension_; ++i) {
-            result[i] = Array(this.dimension_);
-            result[i].fill(Game.BOARD_ELEMENTS.EMPTY);
-        }
-        result[Math.floor(this.dimension_ / 2)][1] = Game.BOARD_ELEMENTS.SNAKE_EDGE;
-        result[Math.floor(this.dimension_ / 2)][2] = Game.BOARD_ELEMENTS.SNAKE_EDGE;
-        
-        this.board_ = result;
-        this.setFoodPosition();
-        console.log(this.board_);
-    }
-
-    setFoodPosition() {
+    getFoodPosition() {
         let row, col;
         do {
             row = Math.floor(this.dimension_ * Math.random());
             col = Math.floor(this.dimension_ * Math.random());
-        } while (this.board_[row][col] === Game.BOARD_ELEMENTS.SNAKE)
+        } while (this.snake_.collidesWithSnake(row, col));
 
-        this.board_[row][col] = Game.BOARD_ELEMENTS.FOOD;
+        this.foodRow_ = row;
+        this.foodCol_ = col;
+        
     }
 
     handleTimePass() {
-    
+        this.snake_.moveForwardOne();
+        if (!this.snake_.isGameOver()) {
+            const headPosition = this.snake_.getHeadPosition();
+            if (headPosition[0] === this.foodRow_ && headPosition[1] === this.foodCol_) {
+                this.snake_.addOneLength();
+                this.drawFood();
+            }
+            this.drawSnake();
+            this.snake_.allowDirectionChange();
+            setTimeout(() => {
+                this.handleTimePass();
+            }, this.speed_);
+        }
     }
 
-    handleInput(direction) {
+    drawFood() {
+        this.getFoodPosition();
+        const currentFood = this.root_.getElementsByClassName('food');
+        if (currentFood.length !== 0) {
+            currentFood.item(0).remove();
+        }
+        const tile = this.getTile(this.foodRow_, this.foodCol_);
+        const food = document.createElement('div');
+        food.className = 'food';
+        tile.append(food);
+    }
 
+    handleInput(eventKey) {
+        switch (eventKey) {
+            case 'ArrowDown':
+                this.snake_.changeDirection(Snake.DIRECTION.DOWN);
+                break;
+            case 'ArrowLeft':
+                this.snake_.changeDirection(Snake.DIRECTION.LEFT);
+                break;
+            case 'ArrowRight':
+                this.snake_.changeDirection(Snake.DIRECTION.RIGHT);
+                break;
+            case 'ArrowUp':
+                this.snake_.changeDirection(Snake.DIRECTION.UP);
+                break
+        }
+    }
+
+    startGame() {
+        document.addEventListener('keydown', (e) => {
+            this.handleInput(e.key);
+        });
+        setTimeout(() => {
+            this.handleTimePass();
+        }, this.speed_);
+    }
+
+    getTileColor(i,j) {
+        if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
+            return Game.TILE_COLOR.light; 
+        } else {
+            return Game.TILE_COLOR.dark; 
+        }
     }
 
     getRootNodeForDimension() {
@@ -61,32 +103,55 @@ class Game {
         this.root_ = document.createElement('div');
         this.root_.id = 'root';
 
-        this.board_.forEach((row, i) => {
+        for (let i = 0; i < this.dimension_; ++i) {
             const rowNode = document.createElement('div');
             rowNode.id = `row-${i}`;
             rowNode.className = 'row';
-            row.forEach((e, j) => {
+            for (let j = 0; j < this.dimension_; ++j) {
                 const tile = document.createElement('div');
                 tile.id = `tile-${i}-${j}`;
                 let className = ['board-element'];
-                if (e === Game.BOARD_ELEMENTS.SNAKE_EDGE) {
-                    className.push('snake-edge');
-                } else if (e === Game.BOARD_ELEMENTS.SNAKE_MID) {
-                    className.push('snake-mid');
-                } else if (e === Game.BOARD_ELEMENTS.FOOD) {
-                    className.push('food'
-)                } else if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
-                    className.push('light-tile');
-                } else {
-                    className.push('dark-tile');
-                }
+                className.push(this.getTileColor(i,j) === Game.TILE_COLOR.dark ? 'dark-tile' : 'light-tile');
                 tile.className = className.join(' ');
-                rowNode.appendChild(tile);
-            });
+                rowNode.appendChild(tile);           
+            }
             this.root_.appendChild(rowNode);
-        })
+        }
+        this.drawSnake();
+        this.drawFood();
         return this.root_;
-    }  
+    }
+
+    getTile(row, col) {
+        return this.root_.children.namedItem(`row-${row}`).children.namedItem(`tile-${row}-${col}`);
+    }
+
+    drawSnake() {
+        const currentSnakeNodes = this.root_.getElementsByClassName('snake');
+        while(currentSnakeNodes.length !== 0) {
+            currentSnakeNodes.item(0).remove();
+        }
+        this.snake_.getRenderingInfo().forEach(info => {
+            const node = document.createElement('div');
+            let classList = ['snake'];
+            switch (info.type) { 
+                case RenderingInfo.Type.CORNER_DOWN:
+                    classList.push('round-corner-down');
+                    break;
+                case RenderingInfo.Type.CORNER_TOP:
+                    classList.push('round-corner-top');
+                    break;
+                case RenderingInfo.Type.CORNER_RIGHT: 
+                classList.push('round-corner-right');
+                    break;
+                case RenderingInfo.Type.CORNER_LEFT: 
+                classList.push('round-corner-left');
+                    break;
+            }
+            node.className = classList.join(' ');
+            this.getTile(info.row, info.column).append(node);
+        });
+    }
 };
 
 module.exports = Game;
