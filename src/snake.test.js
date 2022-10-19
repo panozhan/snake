@@ -1,1 +1,0 @@
-const Snake = require('./snake');

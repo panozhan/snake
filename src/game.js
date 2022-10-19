@@ -22,7 +22,7 @@ class Game {
         this.snake_ = new Snake(dimension);
     }
 
-    getFoodPosition() {
+    getFoodPosition_() {
         let row, col;
         do {
             row = Math.floor(this.dimension_ * Math.random());
@@ -34,7 +34,7 @@ class Game {
         
     }
 
-    handleTimePass() {
+    handleTimePass_() {
         this.snake_.moveForwardOne();
         if (!this.snake_.isGameOver()) {
             const headPosition = this.snake_.getHeadPosition();
@@ -42,21 +42,21 @@ class Game {
                 this.snake_.addOneLength();
                 this.drawFood();
             }
-            this.drawSnake();
+            this.drawSnake_();
             this.snake_.allowDirectionChange();
             setTimeout(() => {
-                this.handleTimePass();
+                this.handleTimePass_();
             }, this.speed_);
         }
     }
 
-    drawFood() {
-        this.getFoodPosition();
+    drawFood_() {
+        this.getFoodPosition_();
         const currentFood = this.root_.getElementsByClassName('food');
         if (currentFood.length !== 0) {
             currentFood.item(0).remove();
         }
-        const tile = this.getTile(this.foodRow_, this.foodCol_);
+        const tile = this.getTile_(this.foodRow_, this.foodCol_);
         const food = document.createElement('div');
         food.className = 'food';
         tile.append(food);
@@ -84,11 +84,11 @@ class Game {
             this.handleInput(e.key);
         });
         setTimeout(() => {
-            this.handleTimePass();
+            this.handleTimePass_();
         }, this.speed_);
     }
 
-    getTileColor(i,j) {
+    getTileColor_(i,j) {
         if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
             return Game.TILE_COLOR.light; 
         } else {
@@ -111,22 +111,22 @@ class Game {
                 const tile = document.createElement('div');
                 tile.id = `tile-${i}-${j}`;
                 let className = ['board-element'];
-                className.push(this.getTileColor(i,j) === Game.TILE_COLOR.dark ? 'dark-tile' : 'light-tile');
+                className.push(this.getTileColor_(i,j) === Game.TILE_COLOR.dark ? 'dark-tile' : 'light-tile');
                 tile.className = className.join(' ');
                 rowNode.appendChild(tile);           
             }
             this.root_.appendChild(rowNode);
         }
-        this.drawSnake();
-        this.drawFood();
+        this.drawSnake_();
+        this.drawFood_();
         return this.root_;
     }
 
-    getTile(row, col) {
+    getTile_(row, col) {
         return this.root_.children.namedItem(`row-${row}`).children.namedItem(`tile-${row}-${col}`);
     }
 
-    drawSnake() {
+    drawSnake_() {
         const currentSnakeNodes = this.root_.getElementsByClassName('snake');
         while(currentSnakeNodes.length !== 0) {
             currentSnakeNodes.item(0).remove();
@@ -149,7 +149,7 @@ class Game {
                     break;
             }
             node.className = classList.join(' ');
-            this.getTile(info.row, info.column).append(node);
+            this.getTile_(info.row, info.column).append(node);
         });
     }
 };

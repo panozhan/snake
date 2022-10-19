@@ -19,6 +19,7 @@
   "homepage": "https://github.com/panozhan/snake#readme",
   "devDependencies": {
     "jest": "^29.1.2",
+    "jest-environment-jsdom": "^29.2.1",
     "nodemon": "^2.0.20",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
