@@ -46,23 +46,4 @@ describe('Get Root Node', () => {
         });
     });
 
-    test('Should return a 10x10 board with alternating dark and light color', () => {
-        const dimension = 10;
-        const game = new Game(dimension);
-        testBoard(game, dimension, (i, j, tile, dimension) => {
-            if (i === Math.floor(dimension / 2)) {
-                if (j === 1 || j === 2) {
-                    expect(tile.children.length).toBe(1);
-                    const snake = tile.children.item(0);
-                    expect(snake.classList.contains('snake')).toBe(true);
-                    
-                    if (j === 1) {
-                        expect(snake.classList.contains('round-corner-left')).toBe(true);
-                    } else if (j === 2) {
-                        expect(snake.classList.contains('round-corner-right')).toBe(true);
-                    }
-                }
-            }
-        });
-    });
 })
