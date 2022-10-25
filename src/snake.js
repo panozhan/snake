@@ -16,16 +16,8 @@ class RenderingInfo {
 }
 
 class Snake {
-    static DIRECTION = {
-        UP:0,
-        RIGHT:1,
-        DOWN:2,
-        LEFT:3
-    }
     constructor(boardDimension) {
-        this.tail_ = new SnakePart(Math.floor(boardDimension / 2), 1, Snake.DIRECTION.RIGHT);
-        this.head_ = new SnakePart(Math.floor(boardDimension / 2), 2, Snake.DIRECTION.RIGHT, this.tail_);
-        this.boardDimension_ = boardDimension;
+
     }
 
     /**
@@ -34,13 +26,7 @@ class Snake {
      * @returns {Array<!RenderingInfo>}
      */
     getRenderingInfo() {
-        const result = [new RenderingInfo(this.head_.row, this.head_.column)];
-        let node = this.head_.next;
-        while (node !== null) {
-            result.push(new RenderingInfo(node.row, node.column));
-            node = node.next;
-        }
-        return result;
+
     }
 
     /**
@@ -49,11 +35,7 @@ class Snake {
      * created by previous ChangeDirection calls
      */
     moveForwardOne() {
-        let node = this.head_;
-        while (node !== null) {
-            node.move();
-            node = node.next;
-        }
+
     }
 };
 
