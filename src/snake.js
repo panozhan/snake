@@ -6,22 +6,6 @@ class SnakePart {
         this.next = next;
     }
 
-    move() {
-        switch (this.direction) {
-            case Snake.DIRECTION.DOWN:
-                this.row += 1;
-                break;
-            case Snake.DIRECTION.UP:
-                this.row -= 1;
-                break;
-            case Snake.DIRECTION.LEFT:
-                this.column -= 1;
-                break;
-            case Snake.DIRECTION.RIGHT:
-                this.column += 1;
-                break;
-        }
-    }
 }
 
 class RenderingInfo {
@@ -46,17 +30,7 @@ class Snake {
 
     /**
      * Maps the parts of the snake into an array of RenderingInfo.
-     * For the head of the snake: 
-     *  1. if it's moving up, the type of the rendering info is CORNER_TOP
-     *  2. if it's moving right, the type of the rendering info is CORNER_RIGHT
-     *  3. if it's moving down, the type of the rendering info is CORNER_DOWN
-     *  4. if it's moving left, the type of the rendering info is CORNER_LEFT
-     * For the tail of the snake: 
-     *  1. if it's moving up, the type of the rendering info is CORNER_DOWN
-     *  2. if it's moving right, the type of the rendering info is CORNER_LEFT
-     *  3. if it's moving down, the type of the rendering info is CORNER_UP
-     *  4. if it's moving left, the type of the rendering info is CORNER_RIGHT
-     * For the interior part of the snake (neither head nor tail), the type is CORNER_NONE
+     * Each rendering info contains the row and column of that snake part
      * @returns {Array<!RenderingInfo>}
      */
     getRenderingInfo() {

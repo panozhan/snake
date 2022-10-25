@@ -29,17 +29,7 @@ class Game {
     }
 
     startGame() {
-        setTimeout(() => {
-            this.handleTimePass();
-        }, this.speed_);
-    }
-
-    getTileColor_(i,j) {
-        if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) {
-            return Game.TILE_COLOR.light; 
-        } else {
-            return Game.TILE_COLOR.dark; 
-        }
+        this.handleTimePass();
     }
 
     /**
@@ -53,32 +43,7 @@ class Game {
      * @returns {!Element}
      */
     getRootNodeForDimension() {
-        if (this.root_ !== undefined) {
-            return this.root_
-        }
-        this.root_ = document.createElement('div');
-        this.root_.id = 'root';
-
-        for (let i = 0; i < this.dimension_; ++i) {
-            const rowNode = document.createElement('div');
-            rowNode.id = `row-${i}`;
-            rowNode.className = 'row';
-            for (let j = 0; j < this.dimension_; ++j) {
-                const tile = document.createElement('div');
-                tile.id = `tile-${i}-${j}`;
-                let className = ['board-element'];
-                className.push(this.getTileColor_(i,j) === Game.TILE_COLOR.dark ? 'dark-tile' : 'light-tile');
-                tile.className = className.join(' ');
-                rowNode.appendChild(tile);           
-            }
-            this.root_.appendChild(rowNode);
-        }
-        this.drawSnake_();
-        return this.root_;
-    }
-
-    getTile_(row, col) {
-        return this.root_.children.namedItem(`row-${row}`).children.namedItem(`tile-${row}-${col}`);
+        
     }
 
     /**
@@ -87,15 +52,7 @@ class Game {
      * which might have changed since the last time this function was called.
      */
     drawSnake_() {
-        const currentSnakeNodes = this.root_.getElementsByClassName('snake');
-        while(currentSnakeNodes.length !== 0) {
-            currentSnakeNodes.item(0).remove();
-        }
-        this.snake_.getRenderingInfo().forEach(info => {
-            const node = document.createElement('div');
-            node.className = 'snake';
-            this.getTile_(info.row, info.column).append(node);
-        });
+        
     }
 };
 
