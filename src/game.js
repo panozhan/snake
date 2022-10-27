@@ -85,7 +85,15 @@ class Game {
      * which might have changed since the last time this function was called.
      */
     drawSnake_() {
-        
+        const currentSnakeNodes = this.root_.getElementsByClassName('snake');
+        while(currentSnakeNodes.length !== 0) {
+            currentSnakeNodes.item(0).remove();
+        }
+        this.snake_.getRenderingInfo().forEach(info => {
+            const node = document.createElement('div');
+            node.className = 'snake';
+            this.getTile_(info.row, info.column).append(node);
+        });
     }
 };
 

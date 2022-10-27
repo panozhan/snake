@@ -6,6 +6,9 @@ class SnakePart {
         this.next = next;
     }
 
+    move() {
+        this.column = this.column + 1
+    }
 }
 
 class RenderingInfo {
