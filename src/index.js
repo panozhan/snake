@@ -1,7 +1,7 @@
 const Game = require('./game');
 
 function initApplication() {
-    const game = new Game(15, 200);
+    const game = new Game(15, 800);
     const rootNode = game.getRootNodeForDimension();
     document.getElementById('game').append(rootNode);
     document.getElementById('start-game').onclick = () => {

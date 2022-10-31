@@ -4,10 +4,26 @@ class SnakePart {
         this.column = column;
         this.direction = direction;
         this.next = next;
+        this.pivot = -1;
+        this.pivotNext = -1;
     }
 
     move() {
-        this.column = this.column + 1
+        if (this.pivot !== -1) {
+            this.direction = this.pivot;
+            if (this.next !== null) {
+                this.next.pivotNext = this.pivot;
+            }
+            this.pivot = -1;
+        } else if (this.pivotNext !== -1) {
+            this.pivot = this.pivotNext;
+            this.pivotNext = -1;
+        }
+        if (this.direction === Snake.DIRECTION.UP) {
+            this.row = this.row - 1;
+        } else {
+            this.column = this.column + 1
+        }
     }
 }
 
@@ -57,6 +73,20 @@ class Snake {
             node.move();
             node = node.next;
         }
+    }
+
+    addOneLength() {
+        const rowOfNewTail = Math.floor(this.boardDimension_ / 2);
+        const colOfNewTail = this.tail_.column - 1;
+        this.tail_.next = new SnakePart(rowOfNewTail, colOfNewTail, Snake.DIRECTION.RIGHT);
+        this.tail_ = this.tail_.next;
+    }
+
+    /** 
+     * As a first step, we will only change direction up
+     */
+    changeDirection() {
+        this.head_.pivot = Snake.DIRECTION.UP;
     }
 };
 

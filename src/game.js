@@ -18,8 +18,14 @@ class Game {
     }
 
     handleTimePass() {
-        if (this.countMoved_ < 7) {
+        if (this.countMoved_ < 11) {
             this.snake_.moveForwardOne();
+            if (this.countMoved_ < 2) {
+                this.snake_.addOneLength();
+            }
+            if (this.countMoved_ === 7) {
+                this.snake_.changeDirection();
+            }
             this.drawSnake_();
             this.countMoved_++;
             setTimeout(() => {
