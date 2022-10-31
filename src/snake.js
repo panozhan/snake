@@ -58,6 +58,13 @@ class Snake {
             node = node.next;
         }
     }
+        
+    addOneLength() {
+        const rowOfNewTail = Math.floor(this.boardDimension_ / 2);
+        const colOfNewTail = this.tail_.column - 1;
+        this.tail_.next = new SnakePart(rowOfNewTail, colOfNewTail, Snake.DIRECTION.RIGHT);
+        this.tail_ = this.tail_.next;
+    }
 };
 
 module.exports = {RenderingInfo, Snake};
