@@ -19,10 +19,19 @@ class SnakePart {
             this.pivot = this.pivotNext;
             this.pivotNext = -1;
         }
-        if (this.direction === Snake.DIRECTION.UP) {
-            this.row = this.row - 1;
-        } else {
-            this.column = this.column + 1
+        switch (this.direction) {
+            case Snake.DIRECTION.DOWN:
+                this.row += 1;
+                break;
+            case Snake.DIRECTION.UP:
+                this.row -= 1;
+                break;
+            case Snake.DIRECTION.LEFT:
+                this.column -= 1;
+                break;
+            case Snake.DIRECTION.RIGHT:
+                this.column += 1;
+                break;
         }
     }
 }
@@ -85,8 +94,20 @@ class Snake {
     /** 
      * As a first step, we will only change direction up
      */
-    changeDirection() {
-        this.head_.pivot = Snake.DIRECTION.UP;
+     changeDirection(direction) {
+        if (this.head_.direction === Snake.DIRECTION.LEFT && direction === Snake.DIRECTION.RIGHT) {
+            return;
+        }
+        if (this.head_.direction === Snake.DIRECTION.RIGHT && direction === Snake.DIRECTION.LEFT) {
+            return;
+        }
+        if (this.head_.direction === Snake.DIRECTION.UP && direction === Snake.DIRECTION.DOWN) {
+            return;
+        }
+        if (this.head_.direction === Snake.DIRECTION.DOWN && direction === Snake.DIRECTION.UP) {
+            return;
+        }
+        this.head_.pivot = direction;
     }
 };
 

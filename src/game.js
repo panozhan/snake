@@ -18,23 +18,38 @@ class Game {
     }
 
     handleTimePass() {
-        if (this.countMoved_ < 11) {
-            this.snake_.moveForwardOne();
-            if (this.countMoved_ < 2) {
-                this.snake_.addOneLength();
-            }
-            if (this.countMoved_ === 7) {
-                this.snake_.changeDirection();
-            }
-            this.drawSnake_();
+        this.snake_.moveForwardOne();
+        if (this.countMoved_ < 2) {
+            this.snake_.addOneLength();
             this.countMoved_++;
-            setTimeout(() => {
-                this.handleTimePass();
-            }, this.speed_);
+        }
+        this.drawSnake_();
+        setTimeout(() => {
+            this.handleTimePass();
+        }, this.speed_);
+    }
+
+    handleInput(eventKey) {
+        switch (eventKey) {
+            case 'ArrowDown':
+                this.snake_.changeDirection(Snake.DIRECTION.DOWN);
+                break;
+            case 'ArrowLeft':
+                this.snake_.changeDirection(Snake.DIRECTION.LEFT);
+                break;
+            case 'ArrowRight':
+                this.snake_.changeDirection(Snake.DIRECTION.RIGHT);
+                break;
+            case 'ArrowUp':
+                this.snake_.changeDirection(Snake.DIRECTION.UP);
+                break
         }
     }
 
     startGame() {
+        document.addEventListener('keydown', e => {
+            this.handleInput(e.key);
+        });
         this.handleTimePass();
     }
 
@@ -103,4 +118,12 @@ class Game {
     }
 };
 
+
+/**
+ * Checkpoint 4 tasks:
+ *  1. Make change direction work for all 4 directions - up, down, right, left
+ *  2. Make the moveForwardOne function work for all 4 directions
+ *  3. Add an event listener to listen for the "keydown" event, and then call
+ *     the changeDirection function in Snake when this happens
+ */ 
 module.exports = Game;
